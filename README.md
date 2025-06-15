@@ -75,21 +75,3 @@ Projeto em desenvolvimento. Sinta-se à vontade para sugerir melhorias, ideias o
 
 📝 Licença
 Este projeto é privado, criado por @luff3e - Todos os direitos reservados.
-
-🔥 BOTCRAFT - Revolucione o atendimento via WhatsApp.
-yaml
-Copiar
-Editar
-
----
-
-### 💾 **Agora faz assim:**
-1️⃣ Cria o arquivo `README.md` na raiz da pasta.  
-2️⃣ Cola tudo isso que te mandei.  
-3️⃣ Salva.  
-
-### Depois sobe pro GitHub:
-```bash
-git add README.md
-git commit -m "Adiciona README.md"
-git push
