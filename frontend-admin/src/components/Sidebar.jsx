@@ -1,57 +1,52 @@
-import {
-  HomeIcon,
-  RowsIcon,
-  LayersIcon,
-  PersonIcon,
-  MagnifyingGlassIcon,
-  GearIcon,
-  ExitIcon
-} from '@radix-ui/react-icons';
-import { useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
-const menu = [
-  { name: 'Dashboard', icon: <HomeIcon />, path: '/dashboard' },
-  { name: 'Imobiliárias', icon: <RowsIcon />, path: '/imobiliarias' },
-  { name: 'Imóveis', icon: <LayersIcon />, path: '/imoveis' },
-  { name: 'Clientes', icon: <PersonIcon />, path: '/clientes' },
-  { name: 'Scraping', icon: <MagnifyingGlassIcon />, path: '/scraping' },
-  { name: 'Configurações', icon: <GearIcon />, path: '/configuracoes' },
-];
+export default function Sidebar({ onLogout }) {
+  const location = useLocation();
 
-function Sidebar() {
-  const navigate = useNavigate();
+  const menus = [
+    { name: 'Dashboard', path: '/dashboard' },
+    { name: 'Imóveis', path: '/imoveis' },
+    { name: 'Clientes', path: '/clientes' },
+    { name: 'Scraping', path: '/scraping' },
+    { name: 'Histórico', path: '/historico' },
+    { name: 'Configurações', path: '/configuracoes' },
+    { name: 'Configurações do Bot', path: '/configuracoes-bot' },
+    { name: 'Bot WhatsApp (QR)', path: '/qrcode-bot' },
+  ];
 
-  const handleLogout = () => {
-    localStorage.removeItem('imobiliaria');
-    navigate('/');
-  };
+  const isActive = (path) => location.pathname === path;
 
   return (
-    <div className="h-screen w-64 bg-white shadow-lg fixed flex flex-col justify-between">
-      <div>
-        <div className="text-2xl font-bold p-6 border-b">BotCraft</div>
-        <ul className="mt-4">
-          {menu.map((item) => (
-            <li
-              key={item.name}
-              className="flex items-center gap-3 p-4 cursor-pointer hover:bg-gray-100"
-              onClick={() => navigate(item.path)}
-            >
-              {item.icon}
-              {item.name}
+    <aside className="w-64 h-screen bg-gray-900 text-white fixed flex flex-col">
+      <div className="p-4 text-2xl font-bold border-b border-gray-700">
+        🏡 Painel Imobiliária
+      </div>
+      <nav className="flex-1 p-4">
+        <ul className="space-y-4">
+          {menus.map((item) => (
+            <li key={item.path}>
+              <Link
+                to={item.path}
+                className={`block px-4 py-2 rounded ${
+                  isActive(item.path)
+                    ? 'bg-yellow-500 text-black'
+                    : 'hover:bg-gray-700'
+                }`}
+              >
+                {item.name}
+              </Link>
             </li>
           ))}
         </ul>
+      </nav>
+      <div className="p-4 border-t border-gray-700">
+        <button
+          onClick={onLogout}
+          className="w-full px-4 py-2 bg-red-600 rounded hover:bg-red-700"
+        >
+          🚪 Sair
+        </button>
       </div>
-      <div
-        onClick={handleLogout}
-        className="flex items-center gap-3 p-4 cursor-pointer hover:bg-red-100 text-red-600 border-t"
-      >
-        <ExitIcon />
-        Sair
-      </div>
-    </div>
+    </aside>
   );
 }
-
-export default Sidebar;

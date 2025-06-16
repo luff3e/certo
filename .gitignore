@@ -1,5 +1,7 @@
 node_modules/
 dist/
-.vscode/
-.DS_Store
-*.env
+build/
+.env
+bot-whatsapp/.wwebjs_auth/
+bot-whatsapp/api.js
+frontend-admin/QrcodeBot.jsx

@@ -1,87 +1,132 @@
-import { useEffect, useState } from 'react';
-import Sidebar from '../components/Sidebar';
-import Topbar from '../components/Topbar';
-import supabase from '../supabase';
+import { useEffect, useState } from "react";
+import API_URL from "../api";
+import axios from "axios";
 
 function Clientes() {
-  const [imobiliaria, setImobiliaria] = useState(null);
   const [clientes, setClientes] = useState([]);
+  const [form, setForm] = useState({
+    nome: "",
+    telefone: "",
+    email: "",
+  });
 
-  const getClientes = async () => {
-    const { data, error } = await supabase
-      .from('clientes_interessados')
-      .select('*')
-      .eq('imobiliaria_id', imobiliaria.id);
-    if (!error) setClientes(data);
+  useEffect(() => {
+    buscarClientes();
+  }, []);
+
+  const buscarClientes = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/clientes`);
+      setClientes(res.data);
+    } catch (err) {
+      console.error("Erro ao buscar clientes", err);
+    }
+  };
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.post(`${API_URL}/clientes`, form);
+      setClientes([res.data, ...clientes]);
+      setForm({ nome: "", telefone: "", email: "" });
+    } catch (err) {
+      console.error("Erro ao cadastrar cliente", err);
+    }
   };
 
   const handleDelete = async (id) => {
-    await supabase.from('clientes_interessados').delete().eq('id', id);
-    getClientes();
+    try {
+      await axios.delete(`${API_URL}/clientes/${id}`);
+      setClientes(clientes.filter((c) => c.id !== id));
+    } catch (err) {
+      console.error("Erro ao excluir", err);
+    }
   };
 
-  useEffect(() => {
-    const data = localStorage.getItem('imobiliaria');
-    if (data) {
-      const info = JSON.parse(data);
-      setImobiliaria(info);
-    } else {
-      window.location.href = '/';
-    }
-  }, []);
-
-  useEffect(() => {
-    if (imobiliaria) {
-      getClientes();
-    }
-  }, [imobiliaria]);
-
   return (
-    <div className="bg-gray-100 min-h-screen">
-      <Sidebar />
-      <Topbar imobiliaria={imobiliaria} />
-      <div className="ml-64 mt-16 p-8">
-        <h2 className="text-2xl font-bold mb-6">Clientes Interessados</h2>
+    <div className="p-8 mt-16">
+      <h2 className="text-2xl font-bold mb-6">Clientes</h2>
 
-        <div className="bg-white p-6 rounded shadow">
-          <h3 className="text-xl font-semibold mb-4">Lista de Clientes</h3>
-          <table className="w-full">
-            <thead>
-              <tr className="border-b">
-                <th className="text-left p-2">Nome</th>
-                <th className="text-left p-2">WhatsApp</th>
-                <th className="text-left p-2">Data</th>
-                <th className="text-left p-2">Ações</th>
+      {/* Form */}
+      <div className="bg-white p-6 rounded shadow mb-6">
+        <h3 className="text-xl font-semibold mb-4">Cadastrar Cliente</h3>
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input
+            type="text"
+            name="nome"
+            placeholder="Nome"
+            value={form.nome}
+            onChange={handleChange}
+            className="border rounded p-2"
+            required
+          />
+          <input
+            type="text"
+            name="telefone"
+            placeholder="Telefone"
+            value={form.telefone}
+            onChange={handleChange}
+            className="border rounded p-2"
+            required
+          />
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={form.email}
+            onChange={handleChange}
+            className="border rounded p-2 md:col-span-2"
+          />
+          <button
+            type="submit"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded md:col-span-2"
+          >
+            Cadastrar
+          </button>
+        </form>
+      </div>
+
+      {/* Tabela */}
+      <div className="bg-white p-6 rounded shadow">
+        <h3 className="text-xl font-semibold mb-4">Clientes Cadastrados</h3>
+        <table className="w-full table-auto">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="px-4 py-2 text-left">Nome</th>
+              <th className="px-4 py-2 text-left">Telefone</th>
+              <th className="px-4 py-2 text-left">Email</th>
+              <th className="px-4 py-2 text-left">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {clientes.map((item) => (
+              <tr key={item.id} className="border-b">
+                <td className="px-4 py-2">{item.nome}</td>
+                <td className="px-4 py-2">{item.telefone}</td>
+                <td className="px-4 py-2">{item.email}</td>
+                <td className="px-4 py-2">
+                  <button
+                    onClick={() => handleDelete(item.id)}
+                    className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
+                  >
+                    Excluir
+                  </button>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {clientes.map((item) => (
-                <tr key={item.id} className="border-b">
-                  <td className="p-2">{item.nome}</td>
-                  <td className="p-2">{item.numero_whatsapp}</td>
-                  <td className="p-2">
-                    {new Date(item.data_cadastro).toLocaleDateString()}
-                  </td>
-                  <td className="p-2">
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
-                    >
-                      Excluir
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {clientes.length === 0 && (
-                <tr>
-                  <td className="p-2" colSpan="4">
-                    Nenhum cliente encontrado.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+            ))}
+            {clientes.length === 0 && (
+              <tr>
+                <td colSpan="4" className="px-4 py-4 text-center">
+                  Nenhum cliente cadastrado.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );
